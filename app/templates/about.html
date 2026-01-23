@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+
+<div class="ehr-card p-5 mb-4">
+  <div class="row align-items-center g-4">
+    <div class="col-lg-7">
+      <h1 class="ehr-title mb-2" style="font-size: 34px;">About Pediatric EHR</h1>
+      <p class="ehr-muted" style="font-size: 16px;">
+        Pediatric EHR is a simple Electronic Health Record system built to help doctors manage
+        pediatric patients and appointments in a clean, secure, and easy way.
+      </p>
+
+      <div class="d-flex flex-wrap gap-2 mt-3">
+        <span class="badge text-bg-light border">Patients</span>
+        <span class="badge text-bg-light border">Appointments</span>
+        <span class="badge text-bg-light border">Secure Login</span>
+        <span class="badge text-bg-light border">Doctor Profiles</span>
+      </div>
+    </div>
+
+    <div class="col-lg-5">
+      <div class="ehr-card p-4" style="background: linear-gradient(90deg,#5b6cff,#7b4ce6); color: #fff; border: none;">
+        <div class="fw-bold" style="font-size: 18px;">Our Mission</div>
+        <div class="mt-2" style="opacity:.95;">
+          Provide a modern and simple pediatric EHR experience that helps doctors
+          keep patient information organized and accessible.
+        </div>
+      </div>
+
+      <div class="row g-3 mt-3">
+        <div class="col-6">
+          <div class="ehr-card p-3 text-center">
+            <div class="fw-bold" style="font-size: 18px;">Fast</div>
+            <div class="ehr-muted">Quick workflow</div>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="ehr-card p-3 text-center">
+            <div class="fw-bold" style="font-size: 18px;">Safe</div>
+            <div class="ehr-muted">Private records</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="ehr-card p-4 h-100">
+      <div class="fw-bold mb-2">Patient Management</div>
+      <div class="ehr-muted">Add, edit, view and organize pediatric patients with photos and medical history.</div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="ehr-card p-4 h-100">
+      <div class="fw-bold mb-2">Appointments</div>
+      <div class="ehr-muted">Create and track appointments, prevent past scheduling, and view appointment details.</div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="ehr-card p-4 h-100">
+      <div class="fw-bold mb-2">Doctor Profiles</div>
+      <div class="ehr-muted">Doctors can edit their profile, add a photo, and update their specialty information.</div>
+    </div>
+  </div>
+</div>
+
+<!-- MEET OUR TEAM -->
+<div class="ehr-card p-4">
+  <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <div>
+      <h2 class="ehr-title mb-1">Meet Our Team</h2>
+      <div class="ehr-muted">These are real registered doctors in the system.</div>
+    </div>
+    <span class="badge text-bg-light border">{{ doctors|length }} Doctor(s)</span>
+  </div>
+
+  <hr class="my-4">
+
+  <div class="row g-3">
+    {% for d in doctors %}
+      <div class="col-md-6 col-lg-4">
+        <div class="ehr-card p-4 h-100">
+
+          <div class="d-flex align-items-center gap-3 mb-3">
+            {% if d.photo_path %}
+              <img
+                src="{{ url_for('static', filename=d.photo_path) }}"
+                alt="Doctor photo"
+                style="width: 64px; height: 64px; object-fit: cover; border-radius: 16px; border: 1px solid rgba(0,0,0,.10);"
+              >
+            {% else %}
+              <div class="ehr-avatar" style="width:64px;height:64px;border-radius:16px;font-size:24px;">
+                {{ (d.username[:1] or "D")|upper }}
+              </div>
+            {% endif %}
+
+            <div>
+              <div class="fw-bold">Dr. {{ d.username }}</div>
+              <div class="ehr-muted">{{ d.specialty or "Pediatric Doctor" }}</div>
+            </div>
+          </div>
+
+          <div class="ehr-muted" style="white-space: pre-wrap;">
+            {{ d.bio or "No bio added yet." }}
+          </div>
+
+          <div class="ehr-muted mt-3">
+            Joined: {{ d.created_at.strftime("%b %d, %Y") }}
+          </div>
+
+        </div>
+      </div>
+    {% else %}
+      <div class="col-12">
+        <div class="ehr-muted text-center py-4">
+          No doctors found yet. Register a doctor to appear here.
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+{% endblock %}

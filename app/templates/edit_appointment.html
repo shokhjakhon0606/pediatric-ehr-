@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="ehr-card p-4 mb-3">
+  <div class="d-flex justify-content-between align-items-center">
+    <div>
+      <h2 class="ehr-title mb-1">Edit Appointment</h2>
+      <div class="ehr-muted">Type a patient name and click from suggestions.</div>
+    </div>
+    <a class="btn btn-outline-secondary"
+       href="{{ url_for('main.appointment_detail', appointment_id=appointment.id) }}">Back</a>
+  </div>
+</div>
+
+<div class="ehr-card p-4">
+  <form method="POST" id="apptForm">
+    <div class="row g-3">
+
+      <div class="col-md-6">
+        <label class="form-label">Patient</label>
+        <input
+          id="patientName"
+          class="form-control"
+          list="patientsList"
+          placeholder="Start typing a name..."
+          autocomplete="off"
+          value="{{ appointment.patient.full_name }}"
+          required
+        >
+        <datalist id="patientsList">
+          {% for p in patients %}
+            <option value="{{ p.full_name }}" data-id="{{ p.id }}"></option>
+          {% endfor %}
+        </datalist>
+
+        <!-- this is what backend reads -->
+        <input type="hidden" name="patient_id" id="patientId" value="{{ appointment.patient_id }}">
+
+        <div id="patientError" class="text-danger small mt-1 d-none">
+          Please select a patient from the list.
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label">Date & Time</label>
+        <input class="form-control"
+               type="datetime-local"
+               name="scheduled_at"
+               value="{{ appointment.scheduled_at.strftime('%Y-%m-%dT%H:%M') }}"
+               min="{{ now_min }}"
+               required>
+        <div class="ehr-muted mt-1">Past dates are blocked.</div>
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label">Status</label>
+        <select class="form-select" name="status">
+          <option value="Scheduled" {% if appointment.status == 'Scheduled' %}selected{% endif %}>Scheduled</option>
+          <option value="Completed" {% if appointment.status == 'Completed' %}selected{% endif %}>Completed</option>
+          <option value="Cancelled" {% if appointment.status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+          <option value="No-Show" {% if appointment.status == 'No-Show' %}selected{% endif %}>No-Show</option>
+        </select>
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label">Reason</label>
+        <input class="form-control" name="reason" value="{{ appointment.reason or '' }}">
+      </div>
+
+      <div class="col-12">
+        <label class="form-label">Notes</label>
+        <textarea class="form-control" rows="4" name="notes">{{ appointment.notes or '' }}</textarea>
+      </div>
+
+      <div class="col-12 d-flex gap-2">
+        <button class="btn btn-primary" type="submit">Save Changes</button>
+        <a class="btn btn-outline-secondary"
+           href="{{ url_for('main.appointment_detail', appointment_id=appointment.id) }}">Cancel</a>
+      </div>
+
+    </div>
+  </form>
+</div>
+
+<script>
+  const patientName = document.getElementById("patientName");
+  const patientId = document.getElementById("patientId");
+  const datalist = document.getElementById("patientsList");
+  const form = document.getElementById("apptForm");
+  const err = document.getElementById("patientError");
+
+  function syncPatientId() {
+    const val = patientName.value.trim();
+    let foundId = "";
+
+    for (const opt of datalist.options) {
+      if (opt.value === val) {
+        foundId = opt.dataset.id || "";
+        break;
+      }
+    }
+    patientId.value = foundId;
+
+    if (val && !foundId) err.classList.remove("d-none");
+    else err.classList.add("d-none");
+  }
+
+  patientName.addEventListener("input", syncPatientId);
+  patientName.addEventListener("change", syncPatientId);
+
+  form.addEventListener("submit", function(e) {
+    syncPatientId();
+    if (!patientId.value) {
+      e.preventDefault();
+      err.classList.remove("d-none");
+      patientName.focus();
+    }
+  });
+</script>
+
+{% endblock %}

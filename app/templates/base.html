@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pediatric EHR</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=5">
+</head>
+<body class="ehr-body">
+
+<nav class="navbar navbar-expand-lg ehr-nav">
+  <div class="container">
+    <a class="navbar-brand ehr-brand" href="{{ url_for('main.home') }}">
+      <span class="ehr-logo">🩺</span>
+      Pediatric EHR
+    </a>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#ehrNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="ehrNav">
+      <ul class="navbar-nav ms-auto gap-lg-2 align-items-lg-center">
+        {% if current_user.is_authenticated %}
+          <li class="nav-item">
+            <a class="nav-link {% if request.endpoint=='main.dashboard' %}active{% endif %}"
+               href="{{ url_for('main.dashboard') }}">Dashboard</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link {% if request.endpoint in ['main.patients','main.add_patient','main.patient_detail','main.edit_patient'] %}active{% endif %}"
+               href="{{ url_for('main.patients') }}">Patients</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link {% if request.endpoint in ['main.appointments','main.add_appointment','main.appointment_detail','main.edit_appointment'] %}active{% endif %}"
+               href="{{ url_for('main.appointments') }}">Appointments</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link {% if request.endpoint=='main.about' %}active{% endif %}"
+               href="{{ url_for('main.about') }}">About Us</a>
+          </li>
+
+          <!-- ✅ Doctor dropdown menu -->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle {% if request.endpoint in ['main.profile','main.edit_profile','main.change_password'] %}active{% endif %}"
+               href="#"
+               role="button"
+               data-bs-toggle="dropdown">
+              Dr. {{ current_user.username }}
+            </a>
+
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" href="{{ url_for('main.profile') }}">Profile</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('main.edit_profile') }}">Edit Profile</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('main.change_password') }}">Change Password</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item text-danger" href="{{ url_for('main.logout') }}">Logout</a></li>
+            </ul>
+          </li>
+
+        {% else %}
+          <li class="nav-item">
+            <a class="nav-link {% if request.endpoint=='main.login' %}active{% endif %}"
+               href="{{ url_for('main.login') }}">Login</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {% if request.endpoint=='main.register' %}active{% endif %}"
+               href="{{ url_for('main.register') }}">Register</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {% if request.endpoint=='main.about' %}active{% endif %}"
+               href="{{ url_for('main.about') }}">About Us</a>
+          </li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<main class="container py-4">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} ehr-alert" role="alert">
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  {% block content %}{% endblock %}
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

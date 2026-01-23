@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="ehr-card p-4 mb-3">
+  <div class="d-flex justify-content-between align-items-center">
+    <div>
+      <h2 class="ehr-title mb-1">New Appointment</h2>
+      <div class="ehr-muted">Search patient by typing and click from results.</div>
+    </div>
+    <a class="btn btn-outline-secondary" href="{{ url_for('main.appointments') }}">Back</a>
+  </div>
+</div>
+
+<div class="ehr-card p-4">
+  <form method="POST" id="apptForm">
+    <div class="row g-3">
+
+      <!-- Searchable patient input (custom dropdown) -->
+      <div class="col-md-6">
+        <label class="form-label">Patient</label>
+
+        <div class="position-relative">
+          <input
+            id="patientSearch"
+            class="form-control"
+            type="text"
+            placeholder="Search patient..."
+            autocomplete="off"
+            required
+          >
+
+          <!-- Hidden input that backend uses -->
+          <input type="hidden" name="patient_id" id="patientId">
+
+          <!-- Dropdown results -->
+          <div id="patientDropdown"
+               class="position-absolute w-100 mt-2 bg-white border rounded-3 shadow-sm d-none"
+               style="z-index: 9999; max-height: 220px; overflow:auto;">
+          </div>
+        </div>
+
+        <div class="ehr-muted mt-1">Type at least 1 letter. Results will appear below.</div>
+        <div id="patientError" class="text-danger small mt-1 d-none">
+          Please select a patient from the results.
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label">Date & Time</label>
+        <input class="form-control" type="datetime-local" name="scheduled_at" min="{{ now_min }}" required>
+        <div class="ehr-muted mt-1">Past dates are blocked.</div>
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label">Status</label>
+        <select class="form-select" name="status">
+          <option value="Scheduled" selected>Scheduled</option>
+          <option value="Completed">Completed</option>
+          <option value="Cancelled">Cancelled</option>
+          <option value="No-Show">No-Show</option>
+        </select>
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label">Reason</label>
+        <input class="form-control" name="reason" placeholder="e.g., check-up, follow-up">
+      </div>
+
+      <div class="col-12">
+        <label class="form-label">Notes</label>
+        <textarea class="form-control" rows="4" name="notes" placeholder="Notes..."></textarea>
+      </div>
+
+      <div class="col-12 d-flex gap-2">
+        <button class="btn btn-primary" type="submit">Create Appointment</button>
+        <a class="btn btn-outline-secondary" href="{{ url_for('main.appointments') }}">Cancel</a>
+      </div>
+
+    </div>
+  </form>
+</div>
+
+<script>
+  // Patients from backend -> JS array
+  const PATIENTS = [
+    {% for p in patients %}
+      { id: {{ p.id }}, name: {{ p.full_name|tojson }} },
+    {% endfor %}
+  ];
+
+  const input = document.getElementById("patientSearch");
+  const dropdown = document.getElementById("patientDropdown");
+  const patientId = document.getElementById("patientId");
+  const err = document.getElementById("patientError");
+  const form = document.getElementById("apptForm");
+
+  function closeDropdown() {
+    dropdown.classList.add("d-none");
+    dropdown.innerHTML = "";
+  }
+
+  function openDropdown() {
+    dropdown.classList.remove("d-none");
+  }
+
+  function renderResults(query) {
+    dropdown.innerHTML = "";
+
+    if (!query) {
+      closeDropdown(); // ✅ don't show anything until user types
+      return;
+    }
+
+    const q = query.toLowerCase();
+
+    const matches = PATIENTS.filter(p => p.name.toLowerCase().includes(q));
+
+    if (matches.length === 0) {
+      openDropdown();
+      dropdown.innerHTML = `
+        <div class="px-3 py-2 text-muted">No patients found</div>
+      `;
+      return;
+    }
+
+    openDropdown();
+
+    matches.slice(0, 20).forEach(p => {
+      const item = document.createElement("button");
+      item.type = "button";
+      item.className = "w-100 text-start px-3 py-2 border-0 bg-white";
+      item.style.cursor = "pointer";
+
+      // highlight typed part (simple)
+      const safeName = p.name;
+      item.innerHTML = safeName;
+
+      item.addEventListener("click", () => {
+        input.value = p.name;
+        patientId.value = p.id;
+        err.classList.add("d-none");
+        closeDropdown();
+      });
+
+      item.addEventListener("mouseenter", () => item.classList.add("bg-light"));
+      item.addEventListener("mouseleave", () => item.classList.remove("bg-light"));
+
+      dropdown.appendChild(item);
+    });
+  }
+
+  input.addEventListener("input", () => {
+    // user is typing => reset patient_id until they click a result
+    patientId.value = "";
+    err.classList.add("d-none");
+    renderResults(input.value.trim());
+  });
+
+  // Close when clicking outside
+  document.addEventListener("click", (e) => {
+    if (!dropdown.contains(e.target) && e.target !== input) {
+      closeDropdown();
+    }
+  });
+
+  // Validate on submit
+  form.addEventListener("submit", (e) => {
+    if (!patientId.value) {
+      e.preventDefault();
+      err.classList.remove("d-none");
+      input.focus();
+      renderResults(input.value.trim());
+    }
+  });
+</script>
+
+{% endblock %}

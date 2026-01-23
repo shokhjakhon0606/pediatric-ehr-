@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="ehr-card p-4 mb-3">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <div>
+      <h2 class="ehr-title mb-1">{{ patient.full_name }}</h2>
+      <div class="ehr-muted">Patient Details</div>
+    </div>
+    <div class="d-flex gap-2">
+      <a class="btn btn-outline-secondary" href="{{ url_for('main.patients') }}">Back</a>
+      <a class="btn btn-primary" href="{{ url_for('main.edit_patient', patient_id=patient.id) }}">Edit</a>
+      <form method="POST" action="{{ url_for('main.delete_patient', patient_id=patient.id) }}"
+            onsubmit="return confirm('Delete this patient?');">
+        <button class="btn btn-outline-danger" type="submit">Delete</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-md-4">
+    <div class="ehr-card p-3">
+      <div class="fw-bold mb-2">Photo</div>
+      {% if patient.image_path %}
+        <img class="img-fluid rounded" src="{{ url_for('static', filename=patient.image_path) }}" alt="Patient photo">
+      {% else %}
+        <div class="ehr-muted">No photo uploaded.</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="col-md-8">
+    <div class="ehr-card p-3">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="ehr-muted">Birth Date</div>
+          <div class="fw-semibold">{{ patient.birth_date }}</div>
+        </div>
+        <div class="col-md-6">
+          <div class="ehr-muted">Gender</div>
+          <div class="fw-semibold">{{ patient.gender or '-' }}</div>
+        </div>
+        <div class="col-12">
+          <div class="ehr-muted">Allergies</div>
+          <div class="fw-semibold">{{ patient.allergies or '-' }}</div>
+        </div>
+        <div class="col-12">
+          <div class="ehr-muted">Medical History</div>
+          <div class="fw-semibold" style="white-space: pre-wrap;">{{ patient.medical_history or '-' }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

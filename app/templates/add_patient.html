@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="ehr-card p-4 mb-3">
+  <div class="d-flex justify-content-between align-items-center">
+    <div>
+      <h2 class="ehr-title mb-1">Add Patient</h2>
+      <div class="ehr-muted">Create a new patient record</div>
+    </div>
+    <a class="btn btn-outline-secondary" href="{{ url_for('main.patients') }}">Back</a>
+  </div>
+</div>
+
+<div class="ehr-card p-4">
+  <form method="POST" enctype="multipart/form-data" action="{{ url_for('main.add_patient') }}">
+    <div class="row g-3">
+      <div class="col-md-6">
+        <label class="form-label">Full Name</label>
+        <input class="form-control" name="full_name" required>
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label">Birth Date</label>
+        <input class="form-control" type="date" name="birth_date" required>
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label">Gender</label>
+        <select class="form-select" name="gender">
+          <option value="">Select</option>
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label">Photo (optional)</label>
+        <input class="form-control" type="file" name="photo" accept="image/*">
+      </div>
+
+      <div class="col-12">
+        <label class="form-label">Allergies</label>
+        <input class="form-control" name="allergies" placeholder="e.g., peanuts, penicillin">
+      </div>
+
+      <div class="col-12">
+        <label class="form-label">Medical History</label>
+        <textarea class="form-control" rows="5" name="medical_history" placeholder="Notes..."></textarea>
+      </div>
+
+      <div class="col-12 d-flex gap-2">
+        <button class="btn btn-primary" type="submit">Save Patient</button>
+        <a class="btn btn-outline-secondary" href="{{ url_for('main.patients') }}">Cancel</a>
+      </div>
+    </div>
+  </form>
+</div>
+
+{% endblock %}

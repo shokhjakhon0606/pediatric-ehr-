@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="ehr-card p-4 mb-3">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <div>
+      <h2 class="ehr-title mb-1">Appointments</h2>
+      <div class="ehr-muted">Search by patient name and filter by status.</div>
+    </div>
+    <a class="btn btn-primary" href="{{ url_for('main.add_appointment') }}">+ New Appointment</a>
+  </div>
+</div>
+
+<div class="ehr-card p-4 mb-3">
+  <form method="GET" class="row g-2 align-items-end">
+    <div class="col-md-6">
+      <label class="form-label">Search Patient</label>
+      <input class="form-control" name="q" value="{{ q or '' }}" placeholder="Type patient name...">
+    </div>
+
+    <div class="col-md-4">
+      <label class="form-label">Status</label>
+      <select class="form-select" name="status">
+        <option value="" {% if not status %}selected{% endif %}>All</option>
+        <option value="Scheduled" {% if status == 'Scheduled' %}selected{% endif %}>Scheduled</option>
+        <option value="Completed" {% if status == 'Completed' %}selected{% endif %}>Completed</option>
+        <option value="Cancelled" {% if status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+        <option value="No-Show" {% if status == 'No-Show' %}selected{% endif %}>No-Show</option>
+      </select>
+    </div>
+
+    <div class="col-md-2 d-flex gap-2">
+      <button class="btn btn-outline-primary w-100" type="submit">Filter</button>
+      <a class="btn btn-outline-secondary w-100" href="{{ url_for('main.appointments') }}">Reset</a>
+    </div>
+  </form>
+</div>
+
+<div class="ehr-card p-0 overflow-hidden">
+  <div class="table-responsive">
+    <table class="table mb-0">
+      <thead>
+        <tr>
+          <th style="width: 30%;">Patient</th>
+          <th style="width: 22%;">Date & Time</th>
+          <th style="width: 18%;">Status</th>
+          <th>Reason</th>
+          <th style="width: 20%;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for appt in appointments %}
+          <tr>
+            <td class="fw-semibold">{{ appt.patient.full_name }}</td>
+            <td>{{ appt.scheduled_at.strftime("%Y-%m-%d %H:%M") }}</td>
+            <td>
+              {% set s = (appt.status or 'Scheduled') %}
+              <span class="status-badge
+                {% if s == 'Scheduled' %}st-scheduled{% endif %}
+                {% if s == 'Completed' %}st-completed{% endif %}
+                {% if s == 'Cancelled' %}st-cancelled{% endif %}
+                {% if s == 'No-Show' %}st-noshow{% endif %}
+              ">
+                {{ s }}
+              </span>
+            </td>
+            <td>{{ appt.reason or '-' }}</td>
+            <td class="d-flex flex-wrap gap-2">
+              <!-- ✅ FIXED: endpoint + variable name -->
+              <a class="btn btn-sm btn-primary"
+                 href="{{ url_for('main.appointment_detail', appointment_id=appt.id) }}">
+                View
+              </a>
+
+              <a class="btn btn-sm btn-outline-secondary"
+                 href="{{ url_for('main.edit_appointment', appointment_id=appt.id) }}">
+                Edit
+              </a>
+
+              <form method="POST"
+                    action="{{ url_for('main.delete_appointment', appointment_id=appt.id) }}"
+                    onsubmit="return confirm('Delete this appointment?');">
+                <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+              </form>
+            </td>
+          </tr>
+        {% else %}
+          <tr>
+            <td colspan="5" class="text-center py-4 ehr-muted">No appointments found.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

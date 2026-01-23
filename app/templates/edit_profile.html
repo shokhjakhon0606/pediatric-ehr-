@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="ehr-card p-4 mb-3">
+  <div class="d-flex justify-content-between align-items-center">
+    <div>
+      <h2 class="ehr-title mb-1">Edit Profile</h2>
+      <div class="ehr-muted">Update your doctor information</div>
+    </div>
+    <a class="btn btn-outline-secondary" href="{{ url_for('main.profile') }}">Back</a>
+  </div>
+</div>
+
+<div class="ehr-card p-4">
+  <form method="POST" enctype="multipart/form-data">
+    <div class="row g-3">
+
+      <div class="col-md-6">
+        <label class="form-label">Username</label>
+        <input class="form-control" name="username" value="{{ current_user.username }}" required>
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label">Email</label>
+        <input class="form-control" type="email" name="email" value="{{ current_user.email }}" required>
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label">Specialty</label>
+        <input class="form-control" name="specialty" value="{{ current_user.specialty or '' }}" placeholder="e.g., Pediatrician">
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label">Phone</label>
+        <input class="form-control" name="phone" value="{{ current_user.phone or '' }}" placeholder="+1 555 123 4567">
+      </div>
+
+      <div class="col-12">
+        <label class="form-label">Bio</label>
+        <textarea class="form-control" rows="4" name="bio" placeholder="Short introduction...">{{ current_user.bio or '' }}</textarea>
+      </div>
+
+      <div class="col-12">
+        <label class="form-label">Doctor Photo</label>
+
+        {% if current_user.photo_path %}
+          <div class="d-flex align-items-center gap-3 flex-wrap mb-2">
+            <img
+              src="{{ url_for('static', filename=current_user.photo_path) }}"
+              alt="Doctor photo"
+              style="width: 110px; height: 110px; object-fit: cover; border-radius: 16px; border: 1px solid rgba(0,0,0,.10);"
+            >
+
+            <div>
+              <div class="ehr-muted mb-2">Current photo is shown. You can remove it or upload a new one.</div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="remove_doctor_photo" name="remove_doctor_photo">
+                <label class="form-check-label text-danger" for="remove_doctor_photo">
+                  Remove current photo
+                </label>
+              </div>
+            </div>
+          </div>
+        {% else %}
+          <div class="ehr-muted mb-2">No photo uploaded.</div>
+        {% endif %}
+
+        <input class="form-control" type="file" name="photo" accept="image/*">
+      </div>
+
+      <div class="col-12 d-flex gap-2">
+        <button class="btn btn-primary" type="submit">Save Changes</button>
+        <a class="btn btn-outline-secondary" href="{{ url_for('main.profile') }}">Cancel</a>
+      </div>
+
+    </div>
+  </form>
+</div>
+
+{% endblock %}

@@ -8,23 +8,22 @@ db = SQLAlchemy()
 login_manager = LoginManager()
 login_manager.login_view = 'main.login'
 
-def create_app():
+def create_app(test_config=None):
     app = Flask(__name__)
     app.config.from_object(Config)
 
-    # Initialize extensions with app
+    if test_config:
+        app.config.update(test_config)
+
     db.init_app(app)
     login_manager.init_app(app)
 
-    # Import models
     from app.models import Doctor
 
-    # Define user loader inside app context
     @login_manager.user_loader
     def load_user(user_id):
         return Doctor.query.get(int(user_id))
 
-    # Import and register routes
     from app.routes import main
     app.register_blueprint(main)
 

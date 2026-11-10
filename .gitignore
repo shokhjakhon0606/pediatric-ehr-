@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Virtual environment
+venv/
+.venv/
+
+# Environment variables and secrets
+.env
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Uploaded files and private data
+app/static/uploads/*
+!app/static/uploads/.gitkeep
+
+# System files
+.DS_Store
